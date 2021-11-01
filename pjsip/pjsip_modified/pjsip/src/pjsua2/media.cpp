@@ -122,7 +122,7 @@ AudioMediaTransmitParam::AudioMediaTransmitParam()
 {
 }
 
-AudioMedia::AudioMedia()
+AudioMedia::AudioMedia() 
 : Media(PJMEDIA_TYPE_AUDIO), id(PJSUA_INVALID_ID), mediaPool(NULL)
 {
 
@@ -189,7 +189,7 @@ void AudioMedia::unregisterMediaPort()
     Endpoint::instance().mediaRemove(*this);
 }
 
-AudioMedia::~AudioMedia()
+AudioMedia::~AudioMedia() 
 {
 }
 
@@ -223,7 +223,7 @@ void AudioMedia::startTransmit2(const AudioMedia &sink,
      PJSUA2_THROW(Error)
 {
     pjsua_conf_connect_param pj_param;
-
+    
     pjsua_conf_connect_param_default(&pj_param);
     pj_param.level = param.level;
     PJSUA2_CHECK_EXPR( pjsua_conf_connect2(id, sink.id, &pj_param) );
@@ -290,7 +290,7 @@ void AudioMediaPlayer::createPlayer(const string &file_name,
     pj_str_t pj_name = str2Pj(file_name);
 
     PJSUA2_CHECK_EXPR( pjsua_player_create(&pj_name,
-					   options,
+					   options, 
 					   &playerId) );
 
     /* Register EOF callback */
@@ -333,14 +333,14 @@ void AudioMediaPlayer::createPlaylist(const StringVector &file_names,
     for(i=0; i<file_names.size() && i<count;++i)
     {
 	const string &file_name = file_names[i];
-
+ 
 	pj_files[i] = str2Pj(file_name);
     }
 
     PJSUA2_CHECK_EXPR( pjsua_playlist_create(pj_files,
 					     i,
 					     &pj_lbl,
-					     options,
+					     options, 
 					     &playerId) );
 
     /* Register EOF callback */
@@ -403,7 +403,7 @@ void AudioMediaPlayer::eof_cb(pjmedia_port *port,
 {
     PJ_UNUSED_ARG(port);
     AudioMediaPlayer *player = (AudioMediaPlayer*)usr_data;
-
+    
     player->onEof2();
 }
 
@@ -580,6 +580,18 @@ void AudioMediaStream::createMediaStream(pjsua_call_id id)
     pjsua_conf_get_port_info(ci.conf_slot, &cpi);
     frame_size = cpi.bits_per_sample*cpi.samples_per_frame*cpi.channel_count/8;
     frame_buffer = pj_pool_zalloc(pool, frame_size);
+
+    PJ_LOG(4,(THIS_FILE,
+		  "AudioMediaStream::createMediaStream()",
+          "frame_size %d,"
+		  "bits_per_sample: %d",
+		  "samples_per_frame: %d",
+		  "channel_count: %d",
+		  "clock_rate: %d",
+          frame_size, cpi.bits_per_sample, cpi.samples_per_frame,
+          cpi.channel_count, cpi.clock_rate));
+
+
     pjmedia_mem_player_create( pool, //Pool
                           frame_buffer, //Buffer
                           frame_size, //Buffer Size
@@ -821,7 +833,7 @@ AudDevManager::~AudDevManager()
     // At this point, devMedia should have been cleaned up by Endpoint,
     // as AudDevManager destructor is called after Endpoint destructor.
     //delete devMedia;
-
+    
     clearAudioDevList();
 }
 
@@ -850,13 +862,13 @@ AudioMedia &AudDevManager::getPlaybackDevMedia() PJSUA2_THROW(Error)
 }
 
 void AudDevManager::setCaptureDev(int capture_dev) const PJSUA2_THROW(Error)
-{
+{    
     pjsua_snd_dev_param param;
     pjsua_snd_dev_param_default(&param);
 
     param.capture_dev = capture_dev;
     param.playback_dev = getPlaybackDev();
-
+    
     /* Normalize invalid ID or null device to default device */
     if (param.playback_dev == PJMEDIA_AUD_INVALID_DEV ||
 	param.playback_dev == PJSUA_SND_NULL_DEV)
@@ -886,7 +898,7 @@ void AudDevManager::setPlaybackDev(int playback_dev) const PJSUA2_THROW(Error)
 
     param.mode = PJSUA_SND_DEV_NO_IMMEDIATE_OPEN;
 
-    PJSUA2_CHECK_EXPR( pjsua_set_snd_dev2(&param) );
+    PJSUA2_CHECK_EXPR( pjsua_set_snd_dev2(&param) );    
 }
 
 #if !DEPRECATED_FOR_TICKET_2232
@@ -937,7 +949,7 @@ MediaPort *AudDevManager::setNoDev()
 }
 
 void AudDevManager::setSndDevMode(unsigned mode) const PJSUA2_THROW(Error)
-{
+{    
     int capture_dev = 0, playback_dev = 0;
     pjsua_snd_dev_param param;
     pj_status_t status = pjsua_get_snd_dev(&capture_dev, &playback_dev);
@@ -1246,7 +1258,7 @@ int AudDevManager::getActiveDev(bool is_capture) const PJSUA2_THROW(Error)
 ///////////////////////////////////////////////////////////////////////////////
 ExtraAudioDevice::ExtraAudioDevice (int playdev, int recdev) :
     playDev(playdev), recDev(recdev), ext_snd_dev(NULL)
-{
+{ 
 }
 
 ExtraAudioDevice::~ExtraAudioDevice()
@@ -1270,7 +1282,7 @@ void ExtraAudioDevice::open()
     /* Generate sound device port param */
     pjmedia_snd_port_param param;
     pjmedia_snd_port_param_default(&param);
-
+    
     status = pjmedia_aud_dev_default_param(recDev, &param.base);
     PJSUA2_CHECK_RAISE_ERROR(status);
 
@@ -1310,7 +1322,7 @@ void ExtraAudioDevice::close()
 	pjsua_ext_snd_dev *snd_dev = (pjsua_ext_snd_dev*)ext_snd_dev;
 	ext_snd_dev = NULL;
 	pjsua_ext_snd_dev_destroy(snd_dev);
-    }
+    } 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1329,7 +1341,7 @@ VideoWindowInfo VideoWindow::getInfo() const PJSUA2_THROW(Error)
     pj_bzero(&vwi, sizeof(vwi));
 #if PJSUA_HAS_VIDEO
     pjsua_vid_win_info pj_vwi;
-
+    
     PJSUA2_CHECK_EXPR( pjsua_vid_win_get_info(winId, &pj_vwi) );
     vwi.isNative = (pj_vwi.is_native != PJ_FALSE);
     vwi.winHandle.type = pj_vwi.hwnd.type;
@@ -1340,7 +1352,7 @@ VideoWindowInfo VideoWindow::getInfo() const PJSUA2_THROW(Error)
     vwi.pos.y = pj_vwi.pos.y;
     vwi.size.w = pj_vwi.size.w;
     vwi.size.h = pj_vwi.size.h;
-
+    
 #endif
     return vwi;
 }
@@ -1377,7 +1389,7 @@ void VideoWindow::setPos(const MediaCoordinate &pos) PJSUA2_THROW(Error)
 {
 #if PJSUA_HAS_VIDEO
     pjmedia_coord pj_pos;
-
+    
     pj_pos.x = pos.x;
     pj_pos.y = pos.y;
     PJSUA2_CHECK_EXPR( pjsua_vid_win_set_pos(winId, &pj_pos) );
@@ -1412,7 +1424,7 @@ void VideoWindow::setWindow(const VideoWindowHandle &win) PJSUA2_THROW(Error)
 {
 #if PJSUA_HAS_VIDEO
     pjmedia_vid_dev_hwnd vhwnd;
-
+   
     vhwnd.type = win.type;
     vhwnd.info.window = win.handle.window;
     PJSUA2_CHECK_EXPR( pjsua_vid_win_set_win(winId, &vhwnd) );
@@ -1472,7 +1484,7 @@ pjsua_vid_preview_param VideoPreviewOpParam::toPj() const
     return param;
 }
 
-VideoPreview::VideoPreview(int dev_id)
+VideoPreview::VideoPreview(int dev_id) 
 : devId(dev_id)
 {
 
@@ -1680,8 +1692,8 @@ int VidDevManager::lookupDev(const string &drv_name,
 {
     pjmedia_vid_dev_index pj_idx = 0;
 #if PJSUA_HAS_VIDEO
-    PJSUA2_CHECK_EXPR(pjmedia_vid_dev_lookup(drv_name.c_str(),
-					     dev_name.c_str(),
+    PJSUA2_CHECK_EXPR(pjmedia_vid_dev_lookup(drv_name.c_str(), 
+					     dev_name.c_str(), 
 					     &pj_idx));
 #else
     PJ_UNUSED_ARG(drv_name);
@@ -1691,7 +1703,7 @@ int VidDevManager::lookupDev(const string &drv_name,
 }
 
 string VidDevManager::capName(pjmedia_vid_dev_cap cap) const
-{
+{    
     string cap_name;
 #if PJSUA_HAS_VIDEO
     cap_name = pjmedia_vid_dev_cap_name(cap, NULL);
@@ -1727,7 +1739,7 @@ MediaFormatVideo VidDevManager::getFormat(int dev_id) const
 #if PJSUA_HAS_VIDEO
     pjmedia_format pj_format;
     PJSUA2_CHECK_EXPR(pjsua_vid_dev_get_setting(dev_id,
-						PJMEDIA_VID_DEV_CAP_FORMAT,
+						PJMEDIA_VID_DEV_CAP_FORMAT, 
 						&pj_format));
     vid_format.fromPj(pj_format);
 #else
@@ -1773,11 +1785,11 @@ MediaSize VidDevManager::getInputScale(int dev_id) const PJSUA2_THROW(Error)
     return scale;
 }
 
-void VidDevManager::setOutputWindowFlags(int dev_id,
-					 int flags,
+void VidDevManager::setOutputWindowFlags(int dev_id, 
+					 int flags, 
 					 bool keep) PJSUA2_THROW(Error)
-{
-#if PJSUA_HAS_VIDEO
+{    
+#if PJSUA_HAS_VIDEO    
     PJSUA2_CHECK_EXPR(pjsua_vid_dev_set_setting(dev_id,
 				       PJMEDIA_VID_DEV_CAP_OUTPUT_WINDOW_FLAGS,
 				       &flags,
@@ -1816,7 +1828,7 @@ void VidDevManager::switchDev(int dev_id,
 						PJ_FALSE));
 #else
     PJ_UNUSED_ARG(dev_id);
-    PJ_UNUSED_ARG(param);
+    PJ_UNUSED_ARG(param);    
 #endif
 }
 
@@ -1836,11 +1848,11 @@ bool VidDevManager::isCaptureActive(int dev_id) const
     return (pjsua_vid_dev_is_active(dev_id) == PJ_TRUE? true: false);
 #else
     PJ_UNUSED_ARG(dev_id);
-
+    
     return false;
 #endif
 }
-
+    
 void VidDevManager::setCaptureOrient(pjmedia_vid_dev_index dev_id,
     			  	     pjmedia_orient orient,
     			  	     bool keep) PJSUA2_THROW(Error)
@@ -1868,8 +1880,8 @@ VidDevManager::~VidDevManager()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * Utility class for converting CodecFmtpVector to and from pjmedia_codec_fmtp.
+/** 
+ * Utility class for converting CodecFmtpVector to and from pjmedia_codec_fmtp. 
  */
 class CodecFmtpUtil
 {
@@ -1882,7 +1894,7 @@ public:
 	    CodecFmtp fmtp;
 	    fmtp.name = pj2Str(in_fmtp.param[i].name);
 	    fmtp.val = pj2Str(in_fmtp.param[i].val);
-
+ 
             out_fmtp.push_back(fmtp);
        }
     }
@@ -2005,7 +2017,7 @@ void VidCodecParam::fromPj(const pjmedia_vid_codec_param &param)
 pjmedia_vid_codec_param VidCodecParam::toPj() const
 {
     pjmedia_vid_codec_param param;
-    pj_bzero(&param, sizeof(param));
+    pj_bzero(&param, sizeof(param));    
     param.dir = dir;
     param.packing = packing;
     param.ignore_fmtp = ignoreFmtp;
@@ -2050,7 +2062,7 @@ void VidConfPortInfo::fromPj(const pjsua_vid_conf_port_info &port_info)
     }
 }
 
-VideoMedia::VideoMedia()
+VideoMedia::VideoMedia() 
 : Media(PJMEDIA_TYPE_VIDEO), id(PJSUA_INVALID_ID)
 {
 
@@ -2093,7 +2105,7 @@ void VideoMedia::unregisterMediaPort()
 #endif
 }
 
-VideoMedia::~VideoMedia()
+VideoMedia::~VideoMedia() 
 {
 }
 

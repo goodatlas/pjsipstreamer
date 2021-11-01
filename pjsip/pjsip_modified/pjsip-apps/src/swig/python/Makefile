@@ -8,7 +8,7 @@ else
   PYTHON_EXE=python2
 endif
 
-#PYTHON_SETUP_FLAGS = --inplace
+#PYTHON_SETUP_FLAGS = --inplace 
 ifeq ($(OS),Windows_NT)
   PYTHON_PKG_DIR := $(shell $(PYTHON_EXE) -m site --user-site | sed 's/\\/\//g')
   PYTHON_SETUP_FLAGS += --compiler=mingw32
@@ -22,7 +22,7 @@ SWIG_FLAGS=-I../../../../pjlib/include \
 		   -I../../../../pjlib-util/include \
 		   -I../../../../pjmedia/include \
 		   -I../../../../pjsip/include \
-		   -I../../../../pjnath/include -c++
+		   -I../../../../pjnath/include -c++ 
 SRC_DIR=../../../../pjsip/include
 SRCS=$(SRC_DIR)/pjsua2/endpoint.hpp $(SRC_DIR)/pjsua2/types.hpp
 
