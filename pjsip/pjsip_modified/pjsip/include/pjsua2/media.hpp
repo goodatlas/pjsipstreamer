@@ -680,7 +680,7 @@ private:
 class AudioMediaStream : public AudioMedia {
 public:
     AudioMediaStream();
-    void createMediaStream(pjsua_call_id);
+    void createMediaStream(unsigned int);
     virtual ~AudioMediaStream();
     static pj_status_t processFrames(pjmedia_port *, void *);
     // static void processFrames(pjmedia_port *, void *);

@@ -571,19 +571,30 @@ pj_status_t AudioMediaStream::processFrames(pjmedia_port *port, void *usr_data) 
     return PJ_SUCCESS;
 }
 
-void AudioMediaStream::createMediaStream(pjsua_call_id id)
+void AudioMediaStream::createMediaStream(unsigned int sample_rate)
 {
-    pjsua_call_info ci;
-    pjsua_call_get_info(id, &ci);
+    /*
+    we don't have to get conference playback rate.
+    Let's define media port with audio samplerate,
+    then, re-sampling will be supported b/w conference and this port
+    */
+    //pjsua_call_info ci;
+    //pjsua_call_get_info(id, &ci);
 
     pjsua_conf_port_info cpi;
-    pjsua_conf_get_port_info(ci.conf_slot, &cpi);
+    //pjsua_conf_get_port_info(ci.conf_slot, &cpi);
+
+    cpi.clock_rate = sample_rate;
+    cpi.channel_count = 1;
+    cpi.samples_per_frame = sample_rate / 1000 * 20;
+    cpi.bits_per_sample = 16;
+
     frame_size = cpi.bits_per_sample*cpi.samples_per_frame*cpi.channel_count/8;
     frame_buffer = pj_pool_zalloc(pool, frame_size);
 
     PJ_LOG(4,(THIS_FILE,
 		  "AudioMediaStream::createMediaStream()",
-          "frame_size %d,"
+          "frame_size %d",
 		  "bits_per_sample: %d",
 		  "samples_per_frame: %d",
 		  "channel_count: %d",
